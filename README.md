@@ -66,36 +66,40 @@ Damage detection uses 5-fold cross-validation on ARTeFACT; repair uses fixed hel
 
 ## Repository structure
 
+All model work is done in Jupyter notebooks that run in Google Colab. The only Python files are in `app/`, because the Hugging Face Spaces demo needs a `.py` entry point and cannot import code from a notebook.
+
 ```
 old-photo-restoration-studio/
 ├── README.md
-├── notebooks/                  # Colab notebooks: data and EDA, one per stage, full pipeline and evaluation
-├── src/photo_restoration/
-│   ├── preprocess/             # EXIF rotation, alpha / CMYK handling, tiling
-│   ├── detection/              # damage-detection U-Net and synthetic damage generator
-│   ├── repair/                 # latent-space restoration and the OpenCV baseline
-│   ├── colorization/           # DDColor wrapper and skip rule for color input
-│   ├── enhancement/            # Real-ESRGAN upscaling and GFPGAN face restoration
-│   ├── pipeline/               # run_pipeline(): runs the enabled stages in order
-│   └── evaluation/             # metrics (PSNR, SSIM, LPIPS, IoU, ΔE) and ablation runs
-├── app/                        # Gradio demo for Hugging Face Spaces
-├── tests/                      # pytest suite
-├── docs/diagrams/              # pipeline and timeline diagrams
-├── data/                       # datasets, downloaded at run time (not committed)
-├── models/                     # checkpoints (not committed; saved to Google Drive)
+├── notebooks/                                # all model work, as Colab notebooks
+│   ├── 01_data_and_eda.ipynb                 # datasets, EDA, synthetic damage generator
+│   ├── 02_damage_detection.ipynb             # U-Net damage detector, 5-fold cross-validation
+│   ├── 03_repair.ipynb                       # OpenCV baseline, zero-shot and fine-tuned repair
+│   ├── 04_colorization_and_enhancement.ipynb # DDColor, Real-ESRGAN, GFPGAN
+│   └── 05_pipeline_and_evaluation.ipynb      # full pipeline, metrics, ablation study
+├── app/                                      # Gradio demo for Hugging Face Spaces (the only .py files)
+│   ├── app.py                                # Gradio interface
+│   ├── pipeline.py                           # run_pipeline() and stage classes, exported from the notebooks
+│   └── requirements.txt
+├── tests/                                    # pytest checks for app/pipeline.py
+├── docs/diagrams/                            # pipeline and timeline diagrams
+├── data/                                     # datasets, downloaded at run time (not committed)
+├── models/                                   # checkpoints (not committed; saved to Google Drive)
 ├── results/
-│   ├── figures/                # before / mask / after grids, training curves
-│   └── tables/                 # ablation and metric tables
-├── report/                     # final report (APA 7, PDF)
-└── presentation/               # slides and video
+│   ├── figures/                              # before / mask / after grids, training curves
+│   └── tables/                               # ablation and metric tables
+├── report/                                   # final report (APA 7, PDF)
+└── presentation/                             # slides and video
 ```
+
+The notebook files are added as each phase starts.
 
 ## Getting started
 
 Setup instructions will be added as the code lands. The plan:
 
 1. Open a notebook from `notebooks/` in Google Colab and choose a T4 GPU runtime.
-2. Run all cells: the first cell clones this repository, installs it and downloads the datasets.
+2. Run all cells: the first cell clones this repository, installs `app/requirements.txt` and downloads the datasets.
 3. Checkpoints are written to Google Drive so a disconnected session can resume.
 
 ## Team
