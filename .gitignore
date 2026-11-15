@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+
+# Data and model weights (downloaded or produced at run time)
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep
+*.pth
+*.pt
+*.ckpt
+
+# Secrets
+.env
+
+# OS
+.DS_Store
