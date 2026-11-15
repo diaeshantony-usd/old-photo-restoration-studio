@@ -111,8 +111,6 @@ Setup instructions will be added as the code lands. The plan:
 | Ashok Bhairwal | Colorization, enhancement | Gradio demo on Hugging Face Spaces, evaluation harness and metrics |
 | Diaesh Antony | Repair and the OpenCV baseline | Pipeline orchestration, README, ablation runs, presentation slides, video |
 
-**Workflow:** work on a feature branch, open a pull request for a teammate to review, run `ruff check .` and `pytest` before pushing, and never commit datasets, checkpoints or API keys.
-
 ## References
 
 - Wan, Z., et al. (2020). Bringing old photos back to life. *CVPR 2020*.
