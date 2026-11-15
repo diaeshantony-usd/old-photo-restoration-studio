@@ -71,12 +71,13 @@ All model work is done in Jupyter notebooks that run in Google Colab. The only P
 ```
 old-photo-restoration-studio/
 ├── README.md
-├── notebooks/                                # all model work, as Colab notebooks
-│   ├── 01_data_and_eda.ipynb                 # datasets, EDA, synthetic damage generator
-│   ├── 02_damage_detection.ipynb             # U-Net damage detector, 5-fold cross-validation
-│   ├── 03_repair.ipynb                       # OpenCV baseline, zero-shot and fine-tuned repair
-│   ├── 04_colorization_and_enhancement.ipynb # DDColor, Real-ESRGAN, GFPGAN
-│   └── 05_pipeline_and_evaluation.ipynb      # full pipeline, metrics, ablation study
+├── notebooks/                                # all model work, one Colab notebook per stage
+│   ├── 01_data_and_preprocessing/            # datasets, EDA, preprocessing, synthetic damage generator
+│   ├── 02_damage_detection/                  # U-Net damage detector, 5-fold cross-validation
+│   ├── 03_repair/                            # OpenCV baseline, zero-shot and fine-tuned repair
+│   ├── 04_colorization/                      # DDColor
+│   ├── 05_enhancement/                       # Real-ESRGAN upscaling, GFPGAN faces
+│   └── 06_pipeline_and_evaluation/           # full pipeline, metrics, ablation study
 ├── app/                                      # Gradio demo for Hugging Face Spaces (the only .py files)
 │   ├── app.py                                # Gradio interface
 │   ├── pipeline.py                           # run_pipeline() and stage classes, exported from the notebooks
@@ -92,13 +93,13 @@ old-photo-restoration-studio/
 └── presentation/                             # slides and video
 ```
 
-The notebook files are added as each phase starts.
+Each stage folder holds one notebook with the same name, for example `notebooks/03_repair/03_repair.ipynb`.
 
 ## Getting started
 
 Setup instructions will be added as the code lands. The plan:
 
-1. Open a notebook from `notebooks/` in Google Colab and choose a T4 GPU runtime.
+1. Open a stage notebook from `notebooks/` in Google Colab and choose a T4 GPU runtime.
 2. Run all cells: the first cell clones this repository, installs `app/requirements.txt` and downloads the datasets.
 3. Checkpoints are written to Google Drive so a disconnected session can resume.
 
