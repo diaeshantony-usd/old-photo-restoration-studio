@@ -12,8 +12,10 @@ data/*
 !data/.gitkeep
 models/*
 !models/.gitkeep
+!models/damage_detection_unet.pt
 *.pth
 *.pt
+!models/damage_detection_unet.pt
 *.ckpt
 
 # Secrets
