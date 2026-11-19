@@ -27,13 +27,13 @@ Can pretrained deep models, fine-tuned on realistic synthetic damage, restore re
 
 A photo passes through four stages in order. Each stage can be switched off, so the ablation study measures what each one adds.
 
-| Stage | Model | Input → output | Trained by us? |
+| Stage | Model | Input → output | Training Status |
 |---|---|---|---|
-| Preprocess | OpenCV | Raw upload → RGB image, tiles for large scans | No |
-| Detect damage | Scratch-detection U-Net (Wan et al., 2020) | Image → damage mask | Yes, fine-tuned |
-| Repair | Latent-space restoration (Wan et al., 2020); OpenCV inpainting as baseline | Image + mask → repaired image | Yes, fine-tuned |
-| Colorize | DDColor (Kang et al., 2023) | Gray or sepia image → color image | No, pretrained |
-| Enhance | Real-ESRGAN + GFPGAN (Wang et al., 2021) | Image → 4× upscaled image with restored faces | No, pretrained |
+| Preprocess | OpenCV | Raw upload → RGB image, tiles for large scans | Deterministic preprocessing |
+| Detect damage | Scratch-detection U-Net (Wan et al., 2020) | Image → damage mask | Yes, trained (15 epochs, T4 GPU) |
+| Repair | Latent-space restoration (Wan et al., 2020); OpenCV inpainting as baseline | Image + mask → repaired image | Fine-tuned / baseline |
+| Colorize | DDColor (Kang et al., 2023) | Gray or sepia image → color image | Pretrained |
+| Enhance | Real-ESRGAN + GFPGAN (Wang et al., 2021) | Image → 4× upscaled image with restored faces | Pretrained |
 
 A Gradio app on Hugging Face Spaces runs the same pipeline function as the notebooks: upload a photo, tick the stages to run, and compare input, mask and output.
 
@@ -66,28 +66,30 @@ Damage detection uses 5-fold cross-validation on ARTeFACT; repair uses fixed hel
 
 ## Repository structure
 
-All model work is done in Jupyter notebooks that run in Google Colab. The only Python files are in `app/`, because the Hugging Face Spaces demo needs a `.py` entry point and cannot import code from a notebook.
+Model development and experiments run in Jupyter notebooks on Google Colab (T4 GPU). Reusable datasets, dataloaders, and helper modules are centralized in `src/` for cross-environment reproducibility.
 
 ```
 old-photo-restoration-studio/
 ├── README.md
 ├── notebooks/                                # all model work, one Colab notebook per stage
 │   ├── 01_data_and_preprocessing/            # datasets, EDA, preprocessing, synthetic damage generator
-│   ├── 02_damage_detection/                  # U-Net damage detector, 5-fold cross-validation
+│   ├── 02_damage_detection/                  # U-Net damage detector, 15 epochs, T4 GPU
 │   ├── 03_repair/                            # OpenCV baseline, zero-shot and fine-tuned repair
 │   ├── 04_colorization/                      # DDColor
 │   ├── 05_enhancement/                       # Real-ESRGAN upscaling, GFPGAN faces
 │   └── 06_pipeline_and_evaluation/           # full pipeline, metrics, ablation study
-├── app/                                      # Gradio demo for Hugging Face Spaces (the only .py files)
+├── src/                                      # shared PyTorch datasets and dataloaders
+│   └── data/                                 # DamageDataset, SyntheticTripletDataset
+├── app/                                      # Gradio demo for Hugging Face Spaces
 │   ├── app.py                                # Gradio interface
 │   ├── pipeline.py                           # run_pipeline() and stage classes, exported from the notebooks
 │   └── requirements.txt
 ├── tests/                                    # pytest checks for app/pipeline.py
 ├── docs/diagrams/                            # pipeline and timeline diagrams
 ├── data/                                     # datasets, downloaded at run time (not committed)
-├── models/                                   # checkpoints (not committed; saved to Google Drive)
+├── models/                                   # model weights (includes damage_detection_unet.pt)
 ├── results/
-│   ├── figures/                              # before / mask / after grids, training curves
+│   ├── figures/                              # diagnostic audits (includes damage_detection_verification.png)
 │   └── tables/                               # ablation and metric tables
 ├── report/                                   # final report (APA 7, PDF)
 └── presentation/                             # slides and video
