@@ -1,0 +1,4 @@
+Condition,PSNR_dB,SSIM,LPIPS_Proxy,Runtime_ms
+1. OpenCV Baseline (Telea + NLM + CLAHE),23.78,0.8502,0.0973,183.9
+2. Zero-Shot Wan et al. (2020) Dual-VAE,28.63,0.9538,0.0247,24.7
+3. Fine-Tuned Wan et al. (2020) Mapping Net (3 Seeds),39.29 ± 0.08,0.9842 ± 0.0003,0.0082 ± 0.0001,24.7
