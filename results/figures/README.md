@@ -42,4 +42,5 @@ This directory holds exported diagnostic visualizations, inference figures, and 
 
 ### `repair_pipeline_examples.png`
 * **Stage:** photo repair (notebook `03_repair`)
-* **Contents:** 8 test photos drawn at random (fixed seed), each shown as damaged input, full-pipeline output and clean original, with whole-image PSNR. Scratches, cracks and tears are removed on most photos; on #299 a wide tear is only partly filled, which shows the detector's main remaining weakness.
+* **Contents:** the eight test photos the full pipeline repairs most completely, each shown as damaged input, full-pipeline output and clean original, with whole-image PSNR (test photos #324, #205, #251, #311, #286, #329, #143, #140).
+* **Selection rule:** among the 274 test photos with clearly visible local damage (reference mask covering at least 2% of the photo), each photo is repaired, a reference damage mask is derived again from the repaired photo and the clean original, and the eight with the least damage left (2.4% to 7.9% of the input's) are shown. The rule uses the clean originals, so these are **best cases**, not typical results; across all 274 photos the median damage left by this measure is 61% of the input's (the measure also counts inpainted pixels that differ from the original texture). The averages over all 497 test photos are in `results/tables/s2_repair_ablation.csv`.
