@@ -27,14 +27,14 @@ This directory holds exported diagnostic visualizations, inference figures, and 
 
 ### `repair_verification.png`
 * **Stage:** photo repair (notebook `03_repair`)
-* **Contents:** 2 x 7 panels on two photos from the held-out OpenPhoto Restore **test** split (test photos #303 and #476), chosen by a fixed seeded rule before any model was run.
-* **Mask column:** the mask predicted by the OpenPhoto-adapted detector (`damage_detection_unet_openphoto.pt`), which the full pipeline uses.
+* **Contents:** 2 x 7 panels on test photos #251 and #143, two of the eight best-case photos in `repair_pipeline_examples.png`, both with large cracks. They were picked with the help of the clean originals, so they show a complete repair, not the typical result.
+* **Masks:** the baselines use the notebook-02 detector masks, as in their test-set scores; the full pipeline uses the OpenPhoto-adapted detector, whose mask is shown in the second column.
 * **Numbers** (luminance PSNR vs the clean photo; whole image / inside the reference damage mask):
 
   | Photo | Damaged input | Classical | Pretrained Wan et al. | Fine-tuned Wan et al. | Full pipeline (ours) |
   |---|---|---|---|---|---|
-  | #303 (3.1% masked) | 27.31 / 14.07 dB | 23.36 / 13.95 dB | 21.45 / 13.25 dB | 23.27 / 18.04 dB | **29.71** / 17.41 dB |
-  | #476 (5.4% masked) | 20.81 / 11.39 dB | 19.02 / 11.10 dB | 20.44 / 11.64 dB | 23.80 / 15.44 dB | **26.98** / **16.06** dB |
+  | #251 (8.0% masked) | 22.70 / 12.94 dB | 21.85 / 11.96 dB | 21.43 / 11.56 dB | 28.48 / 28.89 dB | 26.53 / 28.34 dB |
+  | #143 (9.9% masked) | 16.61 / 15.35 dB | 19.93 / 13.86 dB | 20.07 / 9.72 dB | 26.30 / 23.63 dB | **30.92** / **27.54** dB |
 
 * **Panel columns:** damaged input, adapted detector mask, classical repair, pretrained Wan et al., fine-tuned Wan et al., full pipeline (adapted detector + tone correction + LaMa), clean original (grayscale, since repair is scored on luminance).
 
