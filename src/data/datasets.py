@@ -7,7 +7,7 @@ Centralized PyTorch Dataset abstractions and data collection utilities
 for all stages of the Old Photo Restoration Studio pipeline:
   - Stage 1: Ingestion & Preprocessing Verification
   - Stage 2: Physical Damage & Scratch Detection
-  - Stage 3: Defect Inpainting & Latent Repair
+  - Repair (notebook 03): Defect Inpainting & Latent Repair
   - Stage 4: Face Enhancement & Archival Restoration
   - Stage 5: Historical Colorization & Degradation Removal
 """
@@ -124,7 +124,7 @@ class SyntheticTripletDataset(Dataset):
     High-throughput PyTorch Dataset streaming pre-cached synthetic triplets from disk.
     
     Loads aligned damaged, clean, and mask files simultaneously, feeding downstream
-    damage detection (Stage 2) and inpainting repair (Stage 3) networks.
+    damage detection (Stage 2) and inpainting repair (notebook 03) networks.
     """
     def __init__(
         self,

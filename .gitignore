@@ -13,11 +13,15 @@ data/*
 models/*
 !models/.gitkeep
 !models/damage_detection_unet.pt
-!models/repair_wan_latent_vae.pt
+!models/repair_wan_mapping_finetuned.part*.pt
+!models/repair_tone_curve*.pt
+!models/damage_detection_unet_openphoto.pt
 *.pth
 *.pt
 !models/damage_detection_unet.pt
-!models/repair_wan_latent_vae.pt
+!models/repair_wan_mapping_finetuned.part*.pt
+!models/repair_tone_curve*.pt
+!models/damage_detection_unet_openphoto.pt
 *.ckpt
 
 # Secrets

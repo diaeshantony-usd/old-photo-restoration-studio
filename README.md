@@ -31,7 +31,7 @@ A photo passes through four stages in order. Each stage can be switched off, so 
 |---|---|---|---|
 | Preprocess | OpenCV | Raw upload → RGB image, tiles for large scans | Deterministic preprocessing |
 | Detect damage | Scratch-detection U-Net (Wan et al., 2020) | Image → damage mask | Yes, trained (15 epochs, T4 GPU) |
-| Repair | Latent-space restoration (Wan et al., 2020); OpenCV inpainting as baseline | Image + mask → repaired image | Fine-tuned / baseline |
+| Repair | Learned tone correction (small CNN, trained) + LaMa inpainting (Suvorov et al., 2022, pretrained) on masks from an OpenPhoto-adapted copy of the U-Net. Baselines: OpenCV inpainting and Wan et al. (2020), pretrained and fine-tuned | Image (+ mask) → repaired image | Tone net trained (40 epochs x 3 seeds); detector copy fine-tuned (12 epochs); Wan et al. fine-tuned (5 epochs x 3 seeds); Colab L4 |
 | Colorize | DDColor (Kang et al., 2023) | Gray or sepia image → color image | Pretrained |
 | Enhance | Real-ESRGAN + GFPGAN (Wang et al., 2021) | Image → 4× upscaled image with restored faces | Pretrained |
 
@@ -43,7 +43,7 @@ Everything is designed to run on a free **Google Colab T4 (16 GB)**: 256 × 256 
 
 | Dataset | Contents | Size | Used for |
 |---|---|---|---|
-| [OpenPhoto Restore](https://huggingface.co/datasets/joshuachin/openphoto-restore-dataset) | 5,000 clean / damaged photo pairs | 4.4 GB | Training the repair model |
+| [OpenPhoto Restore](https://huggingface.co/datasets/joshuachin/openphoto-restore-dataset) | 5,000 clean / damaged photo pairs | 4.4 GB | Training and testing the repair model (train 4,050 / val 450 / test 497, split by photo) |
 | [humanface8000](https://www.kaggle.com/datasets/bharatadhikari/humanface8000) | 8,000 clean / damaged face pairs | 0.5 GB | Face repair and enhancement |
 | [Real damaged film scans](https://doi.org/10.6084/m9.figshare.21803304) (Ivanova et al., 2023) | 44 real damaged 4K scans with expert restorations | 0.4 GB | Real-world test set |
 | [ARTeFACT](https://huggingface.co/datasets/danielaivanova/damaged-media) (Ivanova et al., 2025) | 418 real damaged photos and prints with pixel damage masks | 4.1 GB | Training and testing the damage detector |
@@ -57,12 +57,26 @@ Metrics: PSNR, SSIM, LPIPS (repair quality), IoU and F1 (damage masks), ΔE CIED
 | Run | Damage detection | Repair | Colorization | Enhancement |
 |---|---|---|---|---|
 | OpenCV baseline | OpenCV threshold | OpenCV inpaint | — | — |
-| Zero-shot repair | U-Net | Pretrained, no extra training | — | — |
-| Fine-tuned repair | U-Net | Fine-tuned | — | — |
-| Repair + colorization | U-Net | Fine-tuned | DDColor | — |
-| All stages | U-Net | Fine-tuned | DDColor | Real-ESRGAN + GFPGAN |
+| Pretrained repair | U-Net | Pretrained Wan et al., no extra training | — | — |
+| Fine-tuned repair | U-Net | Fine-tuned Wan et al. | — | — |
+| Full repair | OpenPhoto-adapted U-Net | Tone correction + LaMa | — | — |
+| Repair + colorization | OpenPhoto-adapted U-Net | Tone correction + LaMa | DDColor | — |
+| All stages | OpenPhoto-adapted U-Net | Tone correction + LaMa | DDColor | Real-ESRGAN + GFPGAN |
 
 Damage detection uses 5-fold cross-validation on ARTeFACT; repair uses fixed held-out splits and 3 seeds; the whole pipeline is tested once, at the end, on the real film scans.
+
+**Repair results** (497 held-out OpenPhoto test photos, luminance; `results/tables/s2_repair_ablation.csv`).
+
+| Method | PSNR (dB) ↑ | SSIM ↑ | LPIPS ↓ | PSNR inside damage (dB) ↑ |
+|---|---|---|---|---|
+| Unrepaired input | 21.65 | 0.8551 | 0.1719 | 16.73 |
+| Classical (OpenCV inpaint + denoise + contrast) | 20.12 | 0.8248 | 0.2253 | 16.00 |
+| Pretrained Wan et al. (2020) | 21.76 | 0.8058 | 0.2092 | 17.06 |
+| Fine-tuned Wan et al. (3 seeds) | 23.89 ± 0.05 | 0.8276 ± 0.0034 | 0.1983 ± 0.0030 | 20.60 ± 0.06 |
+| Learned tone correction only (3 seeds) | 27.89 ± 0.08 | 0.8896 ± 0.0010 | 0.1546 ± 0.0009 | 18.70 ± 0.03 |
+| **Full pipeline: adapted detector + tone correction + LaMa** | **28.73** | 0.8862 | **0.1325** | **21.56** |
+
+The full pipeline improves on the input by +7.1 dB PSNR (paired bootstrap 95% CI +6.4 to +7.7; 86% of photos improve). Most of the gain comes from tone correction, because OpenPhoto damage is mostly fading and colour casts; LaMa inpainting then removes the scratches and tears (+2.9 dB inside the damage). The notebook-02 detector finds only 4% of OpenPhoto's damage, so the notebook fine-tunes a separate copy of it on OpenPhoto (recall 0.78, IoU 0.47 at threshold 0.7). Details: `notebooks/03_repair/03_repair.ipynb`.
 
 ## Repository structure
 
@@ -74,12 +88,19 @@ old-photo-restoration-studio/
 ├── notebooks/                                # all model work, one Colab notebook per stage
 │   ├── 01_data_and_preprocessing/            # datasets, EDA, preprocessing, synthetic damage generator
 │   ├── 02_damage_detection/                  # U-Net damage detector, 15 epochs, T4 GPU
-│   ├── 03_repair/                            # OpenCV baseline, zero-shot and fine-tuned repair
+│   ├── 03_repair/                            # Baselines, Wan et al. fine-tuning, detector adaptation, tone correction + LaMa
 │   ├── 04_colorization/                      # DDColor
 │   ├── 05_enhancement/                       # Real-ESRGAN upscaling, GFPGAN faces
 │   └── 06_pipeline_and_evaluation/           # full pipeline, metrics, ablation study
-├── src/                                      # shared PyTorch datasets and dataloaders
-│   └── data/                                 # DamageDataset, SyntheticTripletDataset
+├── src/                                      # shared code imported by the notebooks
+│   ├── damage_detection.py                   # U-Net damage detector + OpenCV detector
+│   ├── repair.py                             # Classical repair, Wan et al. wrapper and fine-tuning
+│   ├── tone.py                               # Learned tone-curve network
+│   ├── inpaint.py                            # LaMa / Telea inpainting and the RepairPipeline
+│   ├── detector_finetune.py                  # Fine-tunes a copy of the U-Net on OpenPhoto
+│   ├── reference_masks.py                    # Reference damage masks from damaged/clean pairs
+│   ├── metrics.py                            # PSNR/SSIM/LPIPS (luminance) and masked PSNR
+│   └── data/                                 # DamageDataset, SyntheticTripletDataset, OpenPhoto splits
 ├── app/                                      # Gradio demo for Hugging Face Spaces
 │   ├── app.py                                # Gradio interface
 │   ├── pipeline.py                           # run_pipeline() and stage classes, exported from the notebooks
@@ -87,9 +108,9 @@ old-photo-restoration-studio/
 ├── tests/                                    # pytest checks for app/pipeline.py
 ├── docs/diagrams/                            # pipeline and timeline diagrams
 ├── data/                                     # datasets, downloaded at run time (not committed)
-├── models/                                   # model weights (includes damage_detection_unet.pt)
+├── models/                                   # U-Net detectors, tone net, Wan et al. mapping shards
 ├── results/
-│   ├── figures/                              # diagnostic audits (includes damage_detection_verification.png)
+│   ├── figures/                              # detection and repair verification figures
 │   └── tables/                               # ablation and metric tables
 ├── report/                                   # final report (APA 7, PDF)
 └── presentation/                             # slides and video
@@ -122,6 +143,7 @@ Setup instructions will be added as the code lands. The plan:
 - Wang, X., et al. (2021). Towards real-world blind face restoration with generative facial prior. *CVPR 2021*. https://doi.org/10.1109/cvpr46437.2021.00905
 - Ivanova, D., et al. (2025). ARTeFACT: Benchmarking segmentation models on diverse analogue media damage. *WACV 2025*. https://doi.org/10.1109/wacv61041.2025.00723
 - Ivanova, D., et al. (2023). Simulating analogue film damage to analyse and improve artefact restoration on high-resolution scans. *Computer Graphics Forum*. https://doi.org/10.1111/cgf.14749
+- Suvorov, R., et al. (2022). Resolution-robust large mask inpainting with Fourier convolutions. *WACV 2022*. https://doi.org/10.1109/wacv51458.2022.00323
 - Telea, A. (2004). An image inpainting technique based on the fast marching method. *Journal of Graphics Tools*, 9(1).
 
 The full design, evaluation plan and corner cases are in the design document.

@@ -1,0 +1,11 @@
+Method,PSNR_Y_dB,SSIM_Y,LPIPS_Y,MaskedPSNR_Y_dB,PSNR_RGB_dB,Runtime_ms_median,Test_photos
+Unrepaired input,21.65,0.8551,0.1719,16.73,18.58,64.6,497
+Classical (inpaint + denoise + contrast),20.12,0.8248,0.2253,16.00,17.83,443.9,497
+"Classical, masked pixels only",21.31,0.8524,0.1750,16.84,18.51,81.4,497
+Pretrained Wan et al. (2020),21.76,0.8058,0.2092,17.06,18.68,232.7,497
+Fine-tuned Wan et al.,23.89 ± 0.05,0.8276 ± 0.0034,0.1983 ± 0.0030,20.60 ± 0.06,19.85 ± 0.02,233.5 ± 0.5,497
+Learned tone correction,27.89 ± 0.08,0.8896 ± 0.0010,0.1546 ± 0.0009,18.70 ± 0.03,21.52 ± 0.04,85.7 ± 1.0,497
+Full pipeline (ours),28.73,0.8862,0.1325,21.56,21.96,125.5,497
+"Classical, masked pixels only, adapted masks",21.56,0.8504,0.1624,17.93,18.49,94.6,497
+"Fine-tuned Wan et al., adapted masks",22.90,0.8090,0.2326,16.68,19.50,233.0,497
+"Tone correction + classical inpainting, adapted masks",28.19,0.8845,0.1454,20.39,21.80,112.9,497

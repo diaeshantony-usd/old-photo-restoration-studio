@@ -1,0 +1,8 @@
+Method,PSNR (dB) ↑,SSIM ↑,LPIPS ↓,PSNR inside damage (dB) ↑
+Unrepaired input,21.65,0.8551,0.1719,16.73
+Tone correction only,27.91,0.8885,0.1556,18.66
+"Tone + classical inpainting, adapted masks",28.19,0.8845,0.1454,20.39
+"Tone + LaMa, adapted masks (full pipeline)",28.73,0.8862,0.1325,21.56
+"Tone + LaMa, reference masks",29.44,0.8919,0.1284,21.43
+Upper bound: perfect hole filling,23.26,0.8641,0.1571,100.0
+Upper bound: perfect tone correction,31.85,0.9115,0.1438,19.31

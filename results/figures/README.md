@@ -26,19 +26,20 @@ This directory holds exported diagnostic visualizations, inference figures, and 
 ---
 
 ### `repair_verification.png`
-* **Stage:** Stage 3 (Defect Inpainting & Latent-Space Restoration — Wan et al., 2020)
-* **Contents (2×5 Dual-Case Real Photograph Visual Audit):**
-  * **Case A: Real Color Human Portrait (`astronaut`) with Facial & Background Scratches**
-    * Degraded Input PSNR: **$20.57\text{ dB}$** ($3.1\%$ pixels flagged by Stage 2 mask)
-    * Classical OpenCV Baseline (Telea + NLM + CLAHE): **$23.12\text{ dB}$**
-    * Fine-Tuned Wan et al. (2020) Dual-VAE Restoration: **$33.02\text{ dB}$** (**$+9.90\text{ dB}$ gain over OpenCV baseline**)
-  * **Case B: Real Vintage Monochrome Street Photograph (`camera`) with Creases & Dust**
-    * Degraded Input PSNR: **$22.84\text{ dB}$** ($1.9\%$ pixels flagged by Stage 2 mask)
-    * Classical OpenCV Baseline (Telea + NLM + CLAHE): **$25.83\text{ dB}$**
-    * Fine-Tuned Wan et al. (2020) Dual-VAE Restoration: **$40.80\text{ dB}$** (**$+14.97\text{ dB}$ gain over OpenCV baseline**)
-* **Panel Columns:**
-  1. Degraded Input Real Photograph ($X$)
-  2. Stage 2 Binary Damage Mask ($M$)
-  3. Condition 1: Classical OpenCV Baseline (Telea + NLM + CLAHE)
-  4. Condition 3: Fine-Tuned Wan et al. (2020) Latent-Space VAE ($\hat{Y}$)
-  5. Clean Reference Real Photograph ($Y$)
+* **Stage:** photo repair (notebook `03_repair`)
+* **Contents:** 2 x 7 panels on two photos from the held-out OpenPhoto Restore **test** split (test photos #303 and #476), chosen by a fixed seeded rule before any model was run.
+* **Mask column:** the mask predicted by the OpenPhoto-adapted detector (`damage_detection_unet_openphoto.pt`), which the full pipeline uses.
+* **Numbers** (luminance PSNR vs the clean photo; whole image / inside the reference damage mask):
+
+  | Photo | Damaged input | Classical | Pretrained Wan et al. | Fine-tuned Wan et al. | Full pipeline (ours) |
+  |---|---|---|---|---|---|
+  | #303 (3.1% masked) | 27.31 / 14.07 dB | 23.36 / 13.95 dB | 21.45 / 13.25 dB | 23.27 / 18.04 dB | **29.71** / 17.41 dB |
+  | #476 (5.4% masked) | 20.81 / 11.39 dB | 19.02 / 11.10 dB | 20.44 / 11.64 dB | 23.80 / 15.44 dB | **26.98** / **16.06** dB |
+
+* **Panel columns:** damaged input, adapted detector mask, classical repair, pretrained Wan et al., fine-tuned Wan et al., full pipeline (adapted detector + tone correction + LaMa), clean original (grayscale, since repair is scored on luminance).
+
+---
+
+### `repair_pipeline_examples.png`
+* **Stage:** photo repair (notebook `03_repair`)
+* **Contents:** 8 test photos drawn at random (fixed seed), each shown as damaged input, full-pipeline output and clean original, with whole-image PSNR. Scratches, cracks and tears are removed on most photos; on #299 a wide tear is only partly filled, which shows the detector's main remaining weakness.

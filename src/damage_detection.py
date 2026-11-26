@@ -1,7 +1,6 @@
-"""Stage 2 Damage Detection module: U-Net detector and OpenCV baseline detector.
+"""Damage detection (notebook 02): U-Net detector and classical OpenCV detector.
 
-Provides the standardized ``DamageDetector`` interface defined in Section 3.5 of the
-Design Document:
+Every detector exposes the same interface, used by the repair notebook (03):
 
     class DamageDetector:
         def predict(self, image: np.ndarray) -> np.ndarray:  # H x W uint8 mask, 1 = damaged
@@ -181,7 +180,7 @@ def predict_damage_mask_tiled(
 
 
 class DamageDetector:
-    """Trained Stage 2 U-Net damage detector conforming to Design Doc Section 3.5."""
+    """Trained U-Net damage detector (notebook 02)."""
 
     def __init__(
         self,
@@ -223,7 +222,7 @@ class DamageDetector:
 
 
 class OpenCVDamageDetector:
-    """Classical morphological threshold detector for the OpenCV baseline run (Section 5.3)."""
+    """Classical morphological threshold detector, used as the OpenCV baseline in notebook 02."""
 
     def __init__(self, threshold: int = 38, dilate_radius: int = 1):
         self.threshold = threshold
